@@ -1,0 +1,9 @@
+target/
+*.class
+*.jar
+*.war
+.mvn/
+uploads/
+*.log
+.env
+application-local.properties
