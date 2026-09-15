@@ -6,10 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * CORS — allows both local dev (localhost:5173) and
- * the production Vercel frontend (injected via ALLOWED_ORIGINS env var).
- */
 @Configuration
 public class CorsConfig {
 
@@ -21,14 +17,19 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                String[] origins = allowedOrigins.split(",");
-                registry.addMapping("/**")
-                        .allowedOrigins(origins)
+                var mapping = registry.addMapping("/**")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization")
-                        .allowCredentials(true)
                         .maxAge(3600);
+
+                // If wildcard, allow all origins (no credentials)
+                if ("*".equals(allowedOrigins.trim())) {
+                    mapping.allowedOriginPatterns("*");
+                } else {
+                    String[] origins = allowedOrigins.split(",");
+                    mapping.allowedOrigins(origins).allowCredentials(true);
+                }
             }
         };
     }
